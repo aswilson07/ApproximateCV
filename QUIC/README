@@ -1,0 +1,52 @@
+This the README file for the Matlab and Octave release of the QUIC program. 
+$Id: README,v 1.7 2012-05-10 22:47:32 sustik Exp $
+
+Thank you for trying out our software.  You can obtain the latest version
+from: http://www.cs.utexas.edu/users/sustik/QUIC
+Please send comments and bug reports to: sustik@cs.utexas.edu.
+
+You may compile QUIC using the mex compiler.  For example:
+
+> mex -llapack QUIC.C QUIC-mex.C -output QUIC.mexa64
+
+We also provide a Makefile which allows control of the compile process and
+lets you create a debug version.  Please see the comments in the Makefile.
+The Makefile has been tested on the Linux and MacOS operating systems.  (We
+thank Diane Oyen for her assistance with the MacOS compile.)
+
+Please compile the Octave executable by issuing at a shell (not within
+Octave):
+
+> make QUIC.mex
+
+To compile the Matlab executable, first specify the location of your Matlab
+installation directory by specifying the MATLAB_ROOT environment variable in
+the Makefile, then execute in a shell (not from within Matlab):
+
+> make QUIC.mexa64
+
+which produces a 64-bit MEX file. To compile for 32-bit Matlab, please use:
+
+> make QUIC.mexglx
+
+The arguments and return values when invoked from within Matlab or Octave are
+documented in QUIC.m. You may type 'help QUIC' to obtain the full
+documentation.
+
+Sample use:
+> [X W opt cputime iter dGap] = QUIC('default', S, 0.5, 1e-6, 2, 100);
+where S is the emirical covariance matrix, the regularization parameter is
+0.5, and tolerance is 1e-6.
+
+We also include an M-script called test_ER_692.m that demonstrates usage.
+
+Note that the duality gap is computed as follows.  In each iteration after we
+computed the next iterate for X, we invert it to obtain W. Since W is not
+guaranteed to satisfy the dual constraint, we project it and use the
+resulting matrix in the duality gap computation.  It is not guaranteed that
+the projected W is positive definite which can happen early in the iterative
+process. We return a negative value for the gap when the projected W is not
+positive definite.
+
+
+

@@ -1,0 +1,110 @@
+% This function opens the files and computes the values used in the table
+
+%datasets = ['Lymph','Leukemia','Arabidopsis'];
+tol = 1e-6;
+lam  = .25;%[.25,.5,.75,1];
+y_temp = zeros(4,2);
+x = zeros(4,2);
+%y = zeros(4,2);
+y = zeros(3,4);
+for i = 3
+    %lam = lambda(j);
+    if i==1
+        dataset = 'Lymph';
+       [mean_rel_error_Lymph,sd_rel_error_Lymph,CV_iter_Lymph, mean_ACV_error_Lymph, mean_CV_error_Lymph,sd_CV_error_Lymph, sd_ACV_error_Lymph, mean_ACV_time_Lymph, mean_CV_time_Lymph,  sd_ACV_time_Lymph, sd_CV_time_Lymph] = getTable(dataset,lam,tol);
+    elseif i==2
+        dataset = 'Leukemia';
+        [mean_rel_error_Leukemia, sd_rel_error_Leukemia, CV_iter_Leukemia, mean_ACV_error_Leukemia, mean_CV_error_Leukemia, sd_CV_error_Leukemia, sd_ACV_error_Leukemia, mean_ACV_time_Leukemia, mean_CV_time_Leukemia,  sd_ACV_time_Leukemia, sd_CV_time_Leukemia] = getTable(dataset,lam,tol);
+    elseif i==3
+        dataset = 'Arabidopsis';
+        [mean_rel_error_Ara, sd_rel_error_Ara, CV_iter_Ara, mean_ACV_error_Arabidopsis, mean_CV_error_Arabidopsis, sd_CV_error_Arabidopsis, sd_ACV_error_Arabidopsis, mean_ACV_time_Arabidopsis, mean_CV_time_Arabidopsis, sd_ACV_time_Arabidopsis, sd_CV_time_Arabidopsis] = getTable(dataset,lam,tol);
+    %y(j,1) = eval(sprintf('ACV_time_%s',dataset));
+    %y(j,2) = eval(sprintf('CV_time_%s',dataset));
+    %y_temp(j,1) = eval(sprintf('ACV_error_%s',dataset));
+    %y_temp(j,2) =  eval(sprintf('CV_error_%s',dataset));
+    %y(i,j) = (y_temp(j,2) - y_temp(j,1))/y_temp(j,2);
+    %x(j,:) = lam;
+    end
+end
+%labels2 = ['lam = .25', 'lam = .5', 'lam = .75', 'lam = 1'];
+%bar([.25,.5,.75,1],y)
+%set(gca,'XTick',lambda)
+%Ylabel=[3000,5000,7000,9000,11000];
+%set(gca,'YTick',Ylabel)
+%text([1,2,3,4],y,num2str(lambda'), 'vert','bottom','horiz','center')
+%text([1,2,3,4], [y(1,1) y(1,2);y(2,1) y(2,2); y(3,1) y(3,2); y(4,1) y(4,2)], labels2)
+%make ACV timing plots
+
+%hold on;
+%[ACV_error_ara, CV_error_ara, ACV_time_ara, CV_time_ara] = getTable('Arabidopsis',.5);
+
+
+
+function[mean_rel_error,sd_rel_error,CV_iter, mean_ACV_error, mean_CV_error, sd_CV_error, sd_ACV_error, mean_ACV_time, mean_CV_time, sd_ACV_time, sd_CV_time] = getTable(dataset,lam,tol)
+    ACV_error = zeros(1,10);
+    CV_error = zeros(1,10);
+    ACV_time = zeros(1,10);
+    CV_time = zeros(1,10);
+    CV_iter = zeros(1,10);
+    S_temp = load(strcat(dataset,'.mat'));
+    raw_data = S_temp.data;
+    n = size(raw_data,1);
+    %thresh = 10001;
+    for loop = 1:10
+        for i=1:n
+           filename_CV = sprintf('cv_results-%s-lam%g-index%d-tol%g-loop%g.mat',dataset,lam,i,tol,loop);
+       % filename_CV = sprintf('cv_results-%s-lam%g-index%.mat',dataset,lam,i);
+           CV = load(filename_CV);
+       %CV_error = CV_error + CV.z;
+           CV_error(loop) = CV_error(loop) + CV.error;
+       %CV_time = CV_time + CV.a;
+           CV_time(loop) = CV_time(loop) + CV.cpu_time;
+       %CV_iter = CV_iter + CV.c;
+           CV_iter(loop) = CV_iter(loop) + CV.iter;
+       %if CV.iter > 60
+       %    disp('100!')
+       %end
+       %filename_ACV =  sprintf('new_acv_results-%s-lam%g-index%d-tol%g-thresh%g.mat',dataset,lam,i,tol,thresh);
+       filename_ACV = sprintf('acv_results-%s-lam%g-index%d-tol%g-loop%g.mat',dataset,lam,i,tol,loop);
+       ACV = load(filename_ACV);
+       ACV_error(loop) = ACV_error(loop) + ACV.error;
+       %ACV_error = ACV_error + ACV.z;
+       ACV_time(loop) = ACV_time(loop) + ACV.cpu_time;       
+        end
+    end
+    ACV_error = ACV_error/n;
+    CV_error = CV_error/n;
+    rel_error = zeros(1,10);
+    for loop = 1:10
+        rel_error(loop) = (CV_error(loop) - ACV_error(loop))/CV_error(loop);
+    end
+    mean_CV_error = sum(CV_error)/10;
+    mean_ACV_error = sum(ACV_error)/10;
+    mean_rel_error = sum(rel_error)/10;
+    mean_CV_time = sum(CV_time)/10;
+    mean_ACV_time = sum(ACV_time)/10;
+    %mean_ACV_time = sum(ACV_time)/10;
+
+    sd_CV_error = 0;
+    sd_ACV_error = 0;
+    sd_CV_time = 0;
+    sd_ACV_time = 0;
+    sd_rel_error = 0;
+    
+    for loop = 1:10
+        sd_CV_error = sd_CV_error + (CV_error(loop) - mean_CV_error)^2;
+        sd_CV_time = sd_CV_time + (CV_time(loop) - mean_CV_time)^2;
+        sd_ACV_error = sd_ACV_error + (ACV_error(loop) - mean_ACV_error)^2;
+        sd_ACV_time = sd_ACV_time + (ACV_time(loop) - mean_ACV_time)^2;
+        sd_rel_error = sd_rel_error + (rel_error(loop) - mean_rel_error)^2;
+
+    end
+    sd_CV_error = sd_CV_error/(n-1);
+    sd_CV_time = sd_CV_time/(n-1);
+    sd_ACV_error = sd_ACV_error/(n-1);
+    sd_ACV_time = sd_ACV_time/(n-1);
+    sd_rel_error = sd_rel_error/(n-1);
+
+    %std_dev = (CV_e
+    CV_iter = CV_iter/n;
+end
