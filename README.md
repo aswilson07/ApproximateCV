@@ -13,7 +13,7 @@ To generate the plots in Figure 2 (tested with Python 3.7.4):
 
 ## Figure 3
 
-To generate the plots in Figure 3:
+To generate the plots in Figure 3 (tested with MATLAB R2020a):
 -compile QUIC using the mex compiler (e.g. > mex -llapack QUIC.C QUIC-mex.C -output QUIC.mexa64)
 - Execute `ACV_QUIC_experiment.m' to run the experiment for each dataset
 -Run the file `ACV_Quic_plots.m' to generate relative error and time of each experiment
