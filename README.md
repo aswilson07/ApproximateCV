@@ -27,4 +27,4 @@ To generate the plots in Figure 3 (tested with MATLAB R2020a):
 * Run the file `ACV_Quic_plots.m` to generate relative error and time of each experiment
 * `QUIC_Plots.ipynb` generates the plots in the Figure 3, where the values in the notebook are calculated using `ACV_Quic_plots.m`
 
-Note: This code was adapted form code provided by Ḿatyas A. Sustik (code at http://www.cs.utexas.edu/~sustik/QUIC/.) The QUIC README file included in the QUIC folder is also helpful.
+Note: This code was adapted form code provided by Ḿatyas A. Sustik. The QUIC README file included in the QUIC folder is also helpful.
