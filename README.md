@@ -6,7 +6,6 @@ This repository contains the code used to generate the figures in "Approximate C
 
 To generate the plots in Figure 1 (tested with R 3.6.3):
 
-* Navigate to the `r_code` directory
 * Execute `R -f ACV_multiple_minima.R` to generate the plots
 
 ## Figure 2
